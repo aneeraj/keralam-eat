@@ -1,43 +1,48 @@
 :root {
-  --paper: #f8f4ea;
-  --card: #fdfaf3;
-  --ink:   #22211c;
-  --muted: #6d6a5f;
-  --leaf:  #3d5a3c;
-  --red:   #a3452e;
-  --rule:  #e2dccb;
-  --gold:  #b98a2f;
+  --leaf:       #123c2b;   /* banana-leaf canvas */
+  --leaf-deep:  #0d2f22;   /* inset panels on green */
+  --leaf-line:  #2c5540;   /* rules on green */
+  --cream:      #f6f1e3;   /* rice — cards, panels */
+  --cream-soft: #fffdf6;   /* inputs */
+  --ink:        #1b2a20;   /* text on cream */
+  --muted-green:#a9b7ab;   /* muted text on green */
+  --muted-cream:#5c6b5e;   /* muted text on cream */
+  --red:        #d95330;   /* chilli */
+  --red-soft:   #ef8f6e;   /* chilli for text on green */
+  --ochre:      #c98a1b;   /* turmeric — Malayalam accents */
+  --rule:       #e2dccb;   /* rules on cream */
+  --green-ink:  #1c5c33;   /* positive on cream */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--leaf);
+  color: var(--cream);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: .95rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-/* kasavu — the gold zari edge of the Keralam sari */
+/* shared kara strip — chilli lines on the leaf, same on both pages */
 body::before {
   content: "";
   position: fixed;
   top: 0; left: 0; right: 0;
-  height: 12px;
+  height: 11px;
   z-index: 50;
   pointer-events: none;
   background:
-    linear-gradient(var(--gold) 0 0) 0 0 / 100% 4px no-repeat,
-    linear-gradient(var(--gold) 0 0) 0 6px / 100% 2px no-repeat,
-    linear-gradient(var(--gold) 0 0) 0 10px / 100% 1px no-repeat,
-    var(--paper);
+    linear-gradient(var(--red) 0 0) 0 0 / 100% 5px no-repeat,
+    linear-gradient(var(--cream) 0 0) 0 6px / 100% 2px no-repeat,
+    linear-gradient(var(--red) 0 0) 0 9px / 100% 2px no-repeat,
+    var(--leaf);
 }
 
-::selection { background: #e7dfc9; }
+::selection { background: var(--red); color: var(--cream); }
 
-a { color: var(--leaf); text-decoration: none; }
+a { color: var(--red-soft); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 .mono, .masthead, .locnote, .chips, .pill, .dist {
@@ -56,28 +61,29 @@ a:hover { text-decoration: underline; }
   justify-content: space-between;
   gap: 1rem;
   font-size: .78rem;
-  color: var(--muted);
+  color: var(--muted-green);
   padding-bottom: .7rem;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--leaf-line);
 }
-.masthead .domain { color: var(--ink); font-weight: 600; }
+.masthead .domain { color: var(--cream); font-weight: 600; }
 
 /* ---------- hero ---------- */
 .hero { margin: 2.6rem 0 1.8rem; }
 .mal-big {
   font-family: "Manjari", "Malayalam MN", "Noto Sans Malayalam", sans-serif;
-  color: var(--gold);
+  color: var(--ochre);
   font-size: 2.2rem;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 .hero h1 {
-  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  font-size: 2rem;
-  font-weight: 600;
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: 1.9rem;
+  font-weight: 400;
   line-height: 1.15;
-  margin: .3rem 0 .5rem;
+  margin: .35rem 0 .5rem;
+  color: var(--cream);
 }
-.hero .sub { color: var(--muted); }
+.hero .sub { color: var(--muted-green); }
 
 /* ---------- location bar ---------- */
 .locbar {
@@ -87,35 +93,34 @@ a:hover { text-decoration: underline; }
   flex-wrap: wrap;
 }
 .locbar .near, .locbar .area-go {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--red);
+  color: var(--cream);
   border: none;
   border-radius: 999px;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: .78rem;
-  padding: .42rem 1rem;
+  padding: .45rem 1.05rem;
   cursor: pointer;
 }
-.locbar .near:hover, .locbar .area-go:hover { background: var(--leaf); }
+.locbar .near:hover, .locbar .area-go:hover { filter: brightness(1.12); }
 .locbar select, .locbar .area-input {
-  background: var(--card);
-  border: 1px solid var(--rule);
+  background: var(--cream);
+  border: none;
   border-radius: 999px;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: .8rem;
   color: var(--ink);
-  padding: .42rem .9rem;
+  padding: .45rem .95rem;
   outline: none;
 }
 .locbar .area-input { width: 14rem; max-width: 55vw; }
-.locbar select:focus, .locbar .area-input:focus { border-color: var(--leaf); }
 .locbar .area-input::placeholder { color: #b3ac99; }
 .locbar .clearloc {
-  background: none; border: none; color: var(--muted);
+  background: none; border: none; color: var(--muted-green);
   font-size: 1rem; cursor: pointer; line-height: 1; padding: .2rem .4rem;
 }
-.locbar .clearloc:hover { color: var(--red); }
-.locnote { margin-top: .6rem; font-size: .72rem; color: var(--muted); }
+.locbar .clearloc:hover { color: var(--red-soft); }
+.locnote { margin-top: .6rem; font-size: .72rem; color: var(--muted-green); }
 
 /* ---------- groups ---------- */
 .section-head {
@@ -123,29 +128,29 @@ a:hover { text-decoration: underline; }
   font-size: .78rem;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--leaf);
+  color: var(--red-soft);
   display: flex;
   justify-content: space-between;
   gap: 1rem;
 }
-.section-head .note { color: var(--muted); }
+.section-head .note { color: var(--muted-green); }
 .group-head {
   margin: 2.4rem 0 .9rem;
   font-size: .78rem;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--leaf);
+  color: var(--muted-green);
 }
-.group-head.far { color: var(--muted); }
 
 .empty-state {
-  border: 1px dashed var(--rule);
+  border: 1px dashed var(--leaf-line);
   border-radius: 12px;
   padding: 1rem 1.2rem;
-  color: var(--muted);
+  color: var(--muted-green);
   font-size: .9rem;
 }
-.empty-state strong { color: var(--ink); }
+.empty-state strong { color: var(--cream); }
+.empty-state a { color: var(--red-soft); }
 
 /* ---------- kitchen cards ---------- */
 .cards {
@@ -154,15 +159,19 @@ a:hover { text-decoration: underline; }
   gap: .8rem;
 }
 .card {
-  background: var(--card);
-  border: 1px solid var(--rule);
-  border-radius: 12px;
+  background: var(--cream);
+  color: var(--ink);
+  border-radius: 14px;
   padding: .95rem 1rem;
   display: block;
-  color: var(--ink);
+  transition: transform .12s ease, box-shadow .12s ease;
 }
-.card:hover { border-color: var(--ink); text-decoration: none; }
-.far-group .card { opacity: .72; }
+.card:hover {
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 0 var(--red);
+}
+.far-group .card { opacity: .78; }
 .far-group .card:hover { opacity: 1; }
 
 .card .top {
@@ -172,9 +181,9 @@ a:hover { text-decoration: underline; }
   gap: .5rem;
 }
 .card .name {
-  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  font-size: 1.12rem;
-  font-weight: 600;
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: 1.02rem;
+  font-weight: 400;
 }
 .pill {
   font-size: .68rem;
@@ -182,33 +191,34 @@ a:hover { text-decoration: underline; }
   border-radius: 999px;
   white-space: nowrap;
 }
-.pill.open { background: #e3ecdd; color: var(--leaf); }
-.pill.closed { background: #f2e0d9; color: var(--red); }
-.card .meta { color: var(--muted); font-size: .82rem; margin-top: .2rem; }
+.pill.open { background: #dcead9; color: var(--green-ink); }
+.pill.closed { background: #f2dcd3; color: #a3452e; }
+.card .meta { color: var(--muted-cream); font-size: .82rem; margin-top: .2rem; }
 .card .chips {
   font-size: .7rem;
-  color: var(--muted);
+  color: var(--muted-cream);
   margin-top: .55rem;
   line-height: 1.7;
 }
-.card .dist { margin-top: .5rem; font-size: .74rem; color: var(--muted); }
-.card .dist.in { color: var(--leaf); font-weight: 600; }
+.card .dist { margin-top: .5rem; font-size: .74rem; color: var(--muted-cream); }
+.card .dist.in { color: var(--green-ink); font-weight: 700; }
 
 .mal {
   font-family: "Manjari", "Malayalam MN", "Noto Sans Malayalam", sans-serif;
-  color: var(--gold);
+  color: var(--ochre);
   font-size: .92em;
 }
 
 /* ---------- restaurant page ---------- */
-.backlink { font-size: .85rem; margin: 2.4rem 0 1.2rem; display: inline-block; color: var(--muted); }
+.backlink { font-size: .85rem; margin: 2.4rem 0 1.2rem; display: inline-block; color: var(--muted-green); }
 .r-head h1 {
-  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  font-size: 1.9rem;
-  font-weight: 600;
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 400;
   line-height: 1.2;
+  color: var(--cream);
 }
-.r-head .meta { color: var(--muted); font-size: .88rem; margin-top: .25rem; }
+.r-head .meta { color: var(--muted-green); font-size: .88rem; margin-top: .25rem; }
 .chips-row {
   margin-top: .8rem;
   display: flex;
@@ -216,18 +226,17 @@ a:hover { text-decoration: underline; }
   gap: .45rem;
 }
 .chip {
-  background: var(--card);
-  border: 1px solid var(--rule);
+  background: var(--cream);
   border-radius: 999px;
   padding: .2rem .7rem;
   font-size: .72rem;
-  color: var(--muted);
+  color: var(--muted-cream);
 }
-.chip.good { border-color: var(--leaf); color: var(--leaf); }
-.chip.bad { border-color: var(--red); color: var(--red); }
-.chips-row a.chip { text-decoration: none; }
-.chips-row a.chip:hover { text-decoration: none; border-color: var(--ink); color: var(--ink); }
-.closed-line { margin-top: .6rem; color: var(--red); font-size: .9rem; }
+.chip.good { color: var(--green-ink); }
+.chip.bad { color: #a3452e; }
+.chips-row a.chip { color: var(--muted-cream); text-decoration: none; }
+.chips-row a.chip:hover { color: var(--ink); text-decoration: none; }
+.closed-line { margin-top: .6rem; color: var(--red-soft); font-size: .9rem; }
 
 /* ---------- menu ---------- */
 .menu-category { margin-top: 2rem; }
@@ -235,63 +244,68 @@ a:hover { text-decoration: underline; }
   font-size: .78rem;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--leaf);
+  color: var(--red-soft);
   margin-bottom: .3rem;
 }
 .item { display: flex; align-items: baseline; gap: .7rem; padding: .55rem 0; }
 .item .vegmark {
   display: inline-block;
   width: .55rem; height: .55rem;
-  border: 1.5px solid var(--leaf);
+  border: 1.5px solid var(--cream);
   flex: none;
   align-self: center;
 }
-.item .vegmark.non { border-color: var(--red); }
-.item .nm { flex: none; max-width: 62%; font-weight: 500; }
-.item .nm .d { display: block; color: var(--muted); font-size: .8rem; font-weight: 400; }
-.item .leader { flex: 1; border-bottom: 2px dotted var(--rule); transform: translateY(-4px); min-width: 1.2rem; }
+.item .vegmark.non { border-color: var(--red-soft); }
+.item .nm { flex: none; max-width: 62%; font-weight: 600; color: var(--cream); }
+.item .nm .d { display: block; color: var(--muted-green); font-size: .8rem; font-weight: 400; }
+.item .leader { flex: 1; border-bottom: 2px dotted var(--leaf-line); transform: translateY(-4px); min-width: 1.2rem; }
 .item .price { font-size: .84rem; flex: none; }
 .item .add {
   flex: none;
   background: none;
-  border: 1px solid var(--ink);
+  border: 1.5px solid var(--cream);
   border-radius: 999px;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: .72rem;
   padding: .12rem .65rem;
   cursor: pointer;
-  color: var(--ink);
+  color: var(--cream);
 }
-.item .add:hover { background: var(--ink); color: var(--paper); }
+.item .add:hover { background: var(--cream); color: var(--ink); }
 
-/* ---------- cart ---------- */
-#cart { display: none; margin-top: 3rem; }
+/* ---------- cart (cream panel on the leaf) ---------- */
+#cart { display: none; margin-top: 3rem; background: var(--cream); color: var(--ink); border-radius: 14px; padding: 1.3rem 1.4rem; }
 #cart.visible { display: block; }
-#cart h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: .8rem; }
+#cart h2 {
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  margin-bottom: .8rem;
+}
 
 .cartline { display: flex; align-items: baseline; gap: .7rem; padding: .4rem 0; }
 .cartline .nm { flex: 1; }
 .cartline .qty { font-size: .82rem; }
 .cartline button {
   background: none; border: none; font: inherit; cursor: pointer;
-  color: var(--leaf); padding: 0 .3rem;
+  color: var(--green-ink); padding: 0 .3rem;
 }
 .cartline button:hover { color: var(--ink); }
 .cartline .line-total { font-size: .84rem; }
 
 .totals { border-top: 1px solid var(--rule); margin-top: .5rem; padding-top: .5rem; font-size: .9rem; }
-.totals .row { display: flex; justify-content: space-between; color: var(--muted); }
-.totals .row.grand { color: var(--ink); font-weight: 600; margin-top: .25rem; }
+.totals .row { display: flex; justify-content: space-between; color: var(--muted-cream); }
+.totals .row.grand { color: var(--ink); font-weight: 700; margin-top: .25rem; }
 
 label {
   display: block;
   font-size: .72rem;
-  color: var(--muted);
+  color: var(--muted-cream);
   margin: 1rem 0 .3rem;
 }
 input, textarea {
   width: 100%;
-  background: var(--card);
+  background: var(--cream-soft);
   border: 1px solid var(--rule);
   border-radius: 8px;
   font: inherit;
@@ -299,13 +313,13 @@ input, textarea {
   padding: .5rem .7rem;
   outline: none;
 }
-input:focus, textarea:focus { border-color: var(--leaf); }
+input:focus, textarea:focus { border-color: var(--green-ink); }
 textarea { resize: vertical; min-height: 3.2rem; }
 
 .actions { margin-top: 1.4rem; display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
 .actions .send {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--red);
+  color: var(--cream);
   border: none;
   border-radius: 999px;
   font: inherit;
@@ -313,19 +327,19 @@ textarea { resize: vertical; min-height: 3.2rem; }
   padding: .55rem 1.4rem;
   cursor: pointer;
 }
-.actions .send:hover { background: var(--leaf); }
-.actions .send:disabled { background: var(--rule); cursor: default; }
-.actions .copy { font-size: .85rem; }
+.actions .send:hover { filter: brightness(1.12); }
+.actions .send:disabled { background: var(--rule); color: var(--muted-cream); cursor: default; }
+.actions .copy { font-size: .85rem; color: #a3452e; }
 
-.done { margin-top: 1.2rem; color: var(--leaf); font-size: .92rem; }
+.done { margin-top: 1.2rem; color: var(--green-ink); font-size: .92rem; }
 
 /* fixed cart bar */
 #cartbar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: var(--ink);
-  color: var(--paper);
-  border-top: 2px solid var(--gold);
+  background: var(--cream);
+  color: var(--ink);
+  border-top: 4px solid var(--red);
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: .8rem;
   padding: .75rem 1.4rem;
@@ -333,17 +347,17 @@ textarea { resize: vertical; min-height: 3.2rem; }
   cursor: pointer;
   z-index: 5;
 }
-#cartbar:hover { background: var(--leaf); }
+#cartbar:hover { background: var(--cream-soft); }
 #cartbar.visible { display: block; }
 #cartbar .inner { max-width: 52rem; margin: 0 auto; display: flex; justify-content: space-between; gap: 1rem; }
 
 /* footer */
 footer {
   margin-top: 4rem;
-  border-top: 4px double var(--gold);
+  border-top: 4px double var(--red);
   padding-top: .7rem;
   font-size: .72rem;
-  color: var(--muted);
+  color: var(--muted-green);
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
