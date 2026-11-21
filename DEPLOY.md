@@ -7,9 +7,11 @@ service: `keralam-eat` (static site, free).
 
 Every `git push` to `main` redeploys automatically. Nothing else to do.
 
-Render's CDN edge-caches pages briefly (default: 5 minutes) — if a fresh
-deploy doesn't show up on the site immediately, give it a minute, or
-hard-refresh. `render.yaml` caps the edge cache at 60 seconds.
+Render's CDN edge-caches pages for 5 minutes — if a fresh deploy doesn't
+show up on the site immediately, wait a minute or hard-refresh. (The
+header rules in `render.yaml`, including a 60-second cache cap, take
+effect only after the service is blueprint-synced once in the dashboard:
+open the service → it will offer to sync its blueprint.)
 
 ```sh
 # see deploys
