@@ -1,25 +1,42 @@
-# Deploying to Render
+# Deploying to Render — via the CLI
 
-The whole site is static files — no build, no server. Render's free
-static-site plan is enough.
+The site is deployed with the Render CLI. Repo: `github.com/aneeraj/keralam-eat`,
+service: `keralam-eat` (static site, free).
 
-## From the Render dashboard (2 minutes)
+## Day-to-day
 
-1. Push this repo to GitHub (done already if you're reading this there).
-2. On [render.com](https://render.com): **New → Blueprint**, pick this repo.
-   The `render.yaml` in the root does the rest.
-3. Render gives you a URL like `keralam-eat.onrender.com` — live immediately.
+Every `git push` to `main` redeploys automatically. Nothing else to do.
 
-## Attach keralam.eat
+```sh
+# see deploys
+render deploys list keralam-eat
 
-1. In the service: **Settings → Custom Domains → Add** `keralam.eat`.
-2. Render shows you a CNAME (or A records). Put those into your domain
-   registrar's DNS for `keralam.eat`.
-3. Render issues the TLS certificate automatically within a few minutes —
-   mandatory anyway, since `.eat` is on the HSTS preload list and browsers
-   refuse plain HTTP on it.
+# trigger one by hand
+render deploys create keralam-eat --confirm
+```
 
-## After the first deploy
+## From scratch (if ever needed)
 
-Every `git push` to the connected branch redeploys automatically.
-To add or change kitchens: edit `data.js`, commit, push — done.
+```sh
+brew install render
+render login                    # browser → "Authorize CLI"
+render blueprints validate      # checks render.yaml
+render services create \
+  --name keralam-eat \
+  --type static_site \
+  --repo https://github.com/aneeraj/keralam-eat \
+  --branch main \
+  --publish-directory . \
+  --auto-deploy \
+  --output json --confirm
+```
+
+Note: Render must be able to fetch the repo, so it stays public —
+which suits this project anyway.
+
+## Attach keralam.eat (one-time, dashboard)
+
+1. In Render: the service → **Settings → Custom Domains → Add** `keralam.eat`.
+2. Render shows a CNAME (or A records) — paste those at the domain registrar.
+3. Render issues TLS automatically. Mandatory regardless: `.eat` is on the
+   HSTS preload list, so browsers refuse plain HTTP on it.
