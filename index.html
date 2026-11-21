@@ -16,7 +16,7 @@
 
     <div class="masthead">
       <span class="domain">keralam.eat</span>
-      <span><a href="https://github.com/">the code →</a> open source</span>
+      <span><a href="https://github.com/aneeraj/keralam-eat">the code →</a> open source</span>
     </div>
 
     <section class="hero">
@@ -197,6 +197,11 @@
 
     /* ---------- rendering ---------- */
 
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
     const MAL = {
       "Kozhikode": "കോഴിക്കോട്",
       "Kochi": "കൊച്ചി",
@@ -248,13 +253,25 @@
       const near = withD.filter((x) => x.d <= x.r.delivery.radiusKm).sort((a, b) => a.d - b.d);
       const far = withD.filter((x) => x.d > x.r.delivery.radiusKm).sort((a, b) => a.d - b.d);
 
-      nearGroup.querySelector(".group-head").style.display = "";
-      nearGroup.style.display = near.length ? "block" : "block";
+      nearGroup.style.display = "block";
       farGroup.style.display = far.length ? "block" : "none";
 
-      nearList.innerHTML = near.length
-        ? near.map((x) => rowHTML(x.r, x.d, true)).join("")
-        : '<div class="tagline" style="font-style:italic;color:var(--muted);padding:.6rem 0">No kitchen here delivers that far yet — the nearest ones are below.</div>';
+      if (near.length) {
+        nearGroup.querySelector(".group-head").style.display = "";
+        nearList.innerHTML = near.map((x) => rowHTML(x.r, x.d, true)).join("");
+      } else {
+        nearGroup.querySelector(".group-head").style.display = "none";
+        const closest = far[0];
+        nearList.innerHTML =
+          '<div class="rest" style="border:none">' +
+          "No kitchen delivers to <strong>" + esc(anchor.label) + "</strong> yet. " +
+          (closest
+            ? "The nearest one is <strong>" + closest.r.name + "</strong> (" + closest.r.area + ", " + closest.r.city +
+              "), about " + fmtKm(closest.d) + " away."
+            : "") +
+          ' Kitchens appear here the moment one joins \u2014 if you cook here yourself, <a href="https://github.com/aneeraj/keralam-eat">add your kitchen</a>.' +
+          "</div>";
+      }
       farList.innerHTML = far.map((x) => rowHTML(x.r, x.d, false)).join("");
 
       title.textContent = "Kitchens around " + anchor.label;
