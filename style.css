@@ -1,0 +1,325 @@
+:root {
+  --paper: #f8f4ea;
+  --ink:   #22211c;
+  --muted: #6d6a5f;
+  --leaf:  #3d5a3c;
+  --red:   #a3452e;
+  --rule:  #d9d3c2;
+  --gold:  #b98a2f;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* kasavu — the gold zari edge of the Keralam sari, as the page's border */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 12px;
+  z-index: 50;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--gold) 0 0) 0 0 / 100% 4px no-repeat,
+    linear-gradient(var(--gold) 0 0) 0 6px / 100% 2px no-repeat,
+    linear-gradient(var(--gold) 0 0) 0 10px / 100% 1px no-repeat,
+    var(--paper);
+}
+
+::selection { background: #e7dfc9; }
+
+a { color: var(--leaf); text-decoration: underline; text-underline-offset: .15em; }
+
+.mono {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .82rem;
+}
+
+.wrap {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2.4rem 1.4rem 6rem;
+}
+
+/* Malayalam script accents */
+.mal {
+  font-family: "Manjari", "Malayalam MN", "Noto Sans Malayalam", sans-serif;
+  color: var(--gold);
+  font-size: .92em;
+}
+.mal-big {
+  font-family: "Manjari", "Malayalam MN", "Noto Sans Malayalam", sans-serif;
+  color: var(--gold);
+  font-size: 2.6rem;
+  line-height: 1.1;
+  margin-bottom: 1.1rem;
+}
+
+/* masthead */
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .8rem;
+  color: var(--muted);
+  padding-bottom: .8rem;
+  border-bottom: 1px solid var(--rule);
+}
+.masthead .domain { color: var(--ink); }
+.masthead a { text-decoration: none; }
+.masthead a:hover { text-decoration: underline; }
+
+/* hero */
+.hero { margin: 3.2rem 0 2.4rem; }
+.hero h1 {
+  font-size: 2.2rem;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -.01em;
+  margin-bottom: .8rem;
+}
+.hero p { color: var(--muted); max-width: 34rem; }
+.hero p strong { color: var(--ink); font-weight: 500; }
+
+.how { margin-top: 1.8rem; border-top: 1px solid var(--rule); padding-top: 1.2rem; }
+.how .label { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--leaf); margin-bottom: .5rem; }
+.how ol { margin-left: 1.25rem; }
+.how li { color: var(--muted); font-size: .98rem; margin-bottom: .3rem; }
+
+/* location bar */
+.locbar {
+  margin-top: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  flex-wrap: wrap;
+}
+.locbar .near {
+  background: none;
+  border: 1.5px solid var(--ink);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .8rem;
+  padding: .38rem .85rem;
+  cursor: pointer;
+  color: var(--ink);
+}
+.locbar .near:hover { background: var(--ink); color: var(--paper); }
+.locbar select {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--ink);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .85rem;
+  color: var(--ink);
+  padding: .3rem .1rem;
+  outline: none;
+  cursor: pointer;
+}
+.locbar .clearloc {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: .2rem .4rem;
+}
+.locbar .clearloc:hover { color: var(--red); }
+.locnote { margin-top: .7rem; color: var(--muted); font-style: normal; }
+
+/* grouping + distance */
+.group-head {
+  margin: 2.6rem 0 .2rem;
+  font-size: .85rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--leaf);
+}
+.group-head.far { color: var(--muted); }
+.dist {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .8rem;
+  margin-left: .6rem;
+  color: var(--muted);
+}
+.dist.in { color: var(--leaf); }
+
+/* section heads */
+.section-head {
+  margin: 3rem 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+.section-head h2 { font-size: 1.25rem; font-weight: 600; }
+.section-head .note { color: var(--muted); }
+
+/* kitchen rows */
+.rest { border-top: 1px solid var(--rule); padding: 1.1rem 0; }
+.rest:last-of-type { border-bottom: 1px solid var(--rule); }
+.rest .name { font-size: 1.15rem; font-weight: 600; }
+.rest a.plain { color: var(--ink); text-decoration: none; }
+.rest a.plain:hover .name { text-decoration: underline; text-underline-offset: .15em; }
+.rest .meta { color: var(--muted); font-size: .92rem; margin-top: .15rem; }
+.rest .tagline { font-style: italic; color: var(--muted); font-size: .95rem; margin-top: .35rem; }
+.rest .view { font-size: .9rem; margin-top: .5rem; }
+
+.dot {
+  display: inline-block;
+  width: .5rem; height: .5rem;
+  border-radius: 50%;
+  margin-right: .35rem;
+  vertical-align: 1px;
+}
+.dot.open { background: var(--leaf); }
+.dot.closed { background: var(--red); }
+.openness { font-size: .82rem; letter-spacing: .03em; }
+.openness.open { color: var(--leaf); }
+.openness.closed { color: var(--red); }
+
+/* restaurant page */
+.backlink { font-size: .9rem; margin: 2.6rem 0 1.4rem; display: inline-block; }
+.r-head h1 { font-size: 2rem; font-weight: 600; line-height: 1.2; letter-spacing: -.01em; }
+.r-head .meta { color: var(--muted); margin-top: .3rem; font-size: .95rem; }
+.r-head .delivery {
+  margin-top: .9rem;
+  border: 1px solid var(--rule);
+  padding: .55rem .85rem;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .8rem;
+  color: var(--muted);
+}
+.closed-banner {
+  margin-top: .9rem;
+  font-size: .95rem;
+  color: var(--red);
+  font-style: italic;
+}
+
+/* menu */
+.menu-category { margin-top: 2rem; }
+.menu-category h3 { font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; color: var(--leaf); margin-bottom: .4rem; }
+.item { display: flex; align-items: baseline; gap: .7rem; padding: .6rem 0; }
+.item .vegmark {
+  display: inline-block;
+  width: .55rem; height: .55rem;
+  border: 1.5px solid var(--leaf);
+  flex: none;
+  align-self: center;
+}
+.item .vegmark.non { border-color: var(--red); }
+.item .nm { flex: none; max-width: 60%; }
+.item .nm .d { display: block; color: var(--muted); font-size: .88rem; }
+.item .leader { flex: 1; border-bottom: 2px dotted var(--rule); transform: translateY(-4px); min-width: 1.5rem; }
+.item .price { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .88rem; flex: none; }
+.item .add {
+  flex: none;
+  background: none;
+  border: 1px solid var(--ink);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .78rem;
+  padding: .15rem .6rem;
+  cursor: pointer;
+  color: var(--ink);
+}
+.item .add:hover { background: var(--ink); color: var(--paper); }
+.item .add:disabled { border-color: var(--rule); color: var(--rule); cursor: default; }
+.item .add:disabled:hover { background: none; color: var(--rule); }
+
+/* cart */
+#cart { display: none; margin-top: 3.5rem; }
+#cart.visible { display: block; }
+#cart h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+
+.cartline { display: flex; align-items: baseline; gap: .7rem; padding: .45rem 0; }
+.cartline .nm { flex: 1; }
+.cartline .qty { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .85rem; }
+.cartline button {
+  background: none; border: none; font: inherit; cursor: pointer;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color: var(--leaf); padding: 0 .3rem;
+}
+.cartline button:hover { color: var(--ink); }
+.cartline .line-total { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .88rem; }
+
+.totals { border-top: 1px solid var(--rule); margin-top: .6rem; padding-top: .6rem; font-size: .95rem; }
+.totals .row { display: flex; justify-content: space-between; color: var(--muted); }
+.totals .row.grand { color: var(--ink); font-weight: 600; margin-top: .3rem; }
+
+/* forms */
+label {
+  display: block;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .8rem;
+  color: var(--muted);
+  margin: 1.1rem 0 .35rem;
+}
+input, textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--ink);
+  font: inherit;
+  color: var(--ink);
+  padding: .3rem .1rem;
+  outline: none;
+}
+input:focus, textarea:focus { border-bottom-color: var(--leaf); }
+textarea { resize: vertical; min-height: 3.4rem; }
+
+.actions { margin-top: 1.6rem; display: flex; gap: 1.4rem; align-items: baseline; flex-wrap: wrap; }
+.actions .send {
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  font: inherit;
+  padding: .6rem 1.3rem;
+  cursor: pointer;
+}
+.actions .send:hover { background: var(--leaf); }
+.actions .send:disabled { background: var(--rule); color: var(--paper); cursor: default; }
+.actions .copy { font-size: .9rem; }
+
+.done { margin-top: 1.6rem; font-style: italic; color: var(--leaf); }
+
+/* fixed cart bar */
+#cartbar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--ink);
+  color: var(--paper);
+  border-top: 2px solid var(--gold);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .85rem;
+  padding: .8rem 1.4rem;
+  display: none;
+  cursor: pointer;
+  z-index: 5;
+}
+#cartbar:hover { background: var(--leaf); }
+#cartbar.visible { display: block; }
+#cartbar .inner { max-width: 42rem; margin: 0 auto; display: flex; justify-content: space-between; gap: 1rem; }
+
+/* footer */
+footer {
+  margin-top: 4.5rem;
+  border-top: 4px double var(--gold);
+  padding-top: .8rem;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .78rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .4rem 2rem;
+}

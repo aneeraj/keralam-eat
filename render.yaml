@@ -1,0 +1,15 @@
+# Render Blueprint — deploy keralam.eat as a free static site.
+# After pushing this repo, in the Render dashboard: New → Blueprint → select this repo.
+services:
+  - type: web
+    name: keralam-eat
+    runtime: static
+    buildCommand: echo "static — nothing to build"
+    publishPath: .
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer

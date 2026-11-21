@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>keralam.eat</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M4 28 C 6 15, 14 6, 28 4 C 26 17, 18 26, 6 27' fill='none' stroke='%233d5a3c' stroke-width='2' stroke-linecap='round'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="masthead">
+      <span class="domain">keralam.eat</span>
+      <span><a href="index.html">← all kitchens</a></span>
+    </div>
+
+    <a class="backlink" href="index.html">← all kitchens</a>
+    <div class="r-head" id="r-head"></div>
+
+    <div id="menu"></div>
+
+    <div id="cart">
+      <h2>Your order</h2>
+      <div id="cart-lines"></div>
+      <div class="totals" id="totals"></div>
+
+      <label for="cname">your name</label>
+      <input id="cname" autocomplete="name">
+      <label for="cphone">your phone</label>
+      <input id="cphone" autocomplete="tel" inputmode="tel">
+      <label for="caddress">delivery address</label>
+      <textarea id="caddress" autocomplete="street-address"></textarea>
+
+      <div class="actions">
+        <button class="send" id="send">Send order on WhatsApp →</button>
+        <a href="#" class="copy" id="copy">or copy the order text</a>
+      </div>
+      <div class="done" id="done" style="display:none"></div>
+    </div>
+
+    <footer>
+      <span id="foot-name">keralam.eat — order direct</span>
+      <span>your order goes straight to the kitchen · nothing is stored here</span>
+    </footer>
+
+  </div>
+
+  <div id="cartbar"><div class="inner"><span id="bar-count"></span><span>review your order →</span></div></div>
+
+  <script src="data.js"></script>
+  <script>
+    const slug = new URLSearchParams(location.search).get("id") || "";
+    const r = window.RESTAURANTS.find((x) => x.slug === slug);
+
+    if (!r) {
+      document.querySelector(".r-head").innerHTML = "<h1>No such kitchen.</h1><p style='color:var(--muted)'>Go back to <a href='index.html'>all kitchens</a>.</p>";
+    } else {
+      render();
+    }
+
+    /* ---------- state ---------- */
+    const CART_KEY = "keralam.eat:cart:" + r?.slug;
+    let cart = {};
+    try { cart = JSON.parse(localStorage.getItem(CART_KEY) || "{}"); } catch (e) { cart = {}; }
+
+    function items() {
+      const out = [];
+      (r?.menu || []).forEach((cat, ci) =>
+        cat.items.forEach((it, ii) => out.push({ ...it, id: ci + "-" + ii }))
+      );
+      return out;
+    }
+    const ALL = items();
+
+    function qty(id) { return cart[id] || 0; }
+    function count() { return Object.values(cart).reduce((a, b) => a + b, 0); }
+    function subtotal() {
+      return ALL.reduce((sum, it) => sum + (cart[it.id] ? cart[it.id] * it.price : 0), 0);
+    }
+
+    function save() {
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      syncUI();
+    }
+
+    /* ---------- your location vs this kitchen ---------- */
+    let myLoc = null;
+    try { myLoc = JSON.parse(localStorage.getItem("keralam.eat:loc") || "null"); } catch (e) { myLoc = null; }
+
+    function kmBetween(a, b) {
+      const rad = (x) => (x * Math.PI) / 180;
+      const dLat = rad(b.lat - a.lat);
+      const dLng = rad(b.lng - a.lng);
+      const h =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+      return 2 * 6371 * Math.asin(Math.sqrt(h));
+    }
+
+    function youLine() {
+      if (!myLoc || r.lat == null) return "";
+      const d = kmBetween(myLoc, r);
+      const inside = d <= r.delivery.radiusKm;
+      const fmt = (d < 10 ? d.toFixed(1) : Math.round(d)) + " km";
+      return (
+        '<div class="delivery" style="margin-top:.4rem">' +
+        "you: " + fmt + " away · " +
+        (inside
+          ? '<span style="color:var(--leaf)">inside their radius — they can reach you</span>'
+          : '<span style="color:var(--red)">outside their radius</span>') +
+        ' · <a href="index.html">change location</a>' +
+        "</div>"
+      );
+    }
+
+    /* ---------- rendering ---------- */
+    function render() {
+      document.title = r.name + " — keralam.eat";
+
+      const openness = r.open
+        ? '<span class="openness open"><span class="dot open"></span>open now</span>'
+        : '<span class="openness closed"><span class="dot closed"></span>closed now · hours ' + r.hours + '</span>';
+
+      const malCity = { "Kozhikode": "കോഴിക്കോട്", "Kochi": "കൊച്ചി", "Thrissur": "തൃശ്ശൂർ", "Kottayam": "കോട്ടയം", "Alappuzha": "ആലപ്പുഴ" }[r.city] || "";
+
+      document.getElementById("r-head").innerHTML =
+        "<h1>" + r.name + "</h1>" +
+        '<div class="meta">' + r.area + ", " + r.city + (malCity ? ' <span class="mal">' + malCity + "</span>" : "") + " · " + r.cuisine + " · " + openness + "</div>" +
+        '<div class="delivery">delivers itself · within ' + r.delivery.radiusKm + " km · ₹" +
+        r.delivery.fee + " · " + r.delivery.eta + " · its own staff</div>" +
+        youLine() +
+        (r.open ? "" : '<div class="closed-banner">The kitchen is closed right now — browse, and come back at ' + r.hours.split("–")[0].trim() + ".</div>");
+
+      document.getElementById("foot-name").textContent = r.name + " · keralam.eat";
+
+      const menu = document.getElementById("menu");
+      r.menu.forEach((cat) => {
+        const sec = document.createElement("div");
+        sec.className = "menu-category";
+        sec.innerHTML = "<h3>" + cat.category + "</h3>";
+        cat.items.forEach((it, i) => {
+          const id = r.menu.indexOf(cat) + "-" + i;
+          const row = document.createElement("div");
+          row.className = "item";
+          row.innerHTML =
+            '<span class="vegmark' + (it.veg ? "" : " non") + '"></span>' +
+            '<span class="nm">' + it.name + (it.mal ? ' <span class="mal">' + it.mal + "</span>" : "") + '<span class="d">' + it.desc + "</span></span>" +
+            '<span class="leader"></span>' +
+            '<span class="price">₹' + it.price + "</span>" +
+            '<button class="add" data-id="' + id + '">add</button>';
+          sec.appendChild(row);
+        });
+        menu.appendChild(sec);
+      });
+
+      menu.addEventListener("click", (e) => {
+        const btn = e.target.closest(".add");
+        if (!btn) return;
+        const id = btn.dataset.id;
+        cart[id] = (cart[id] || 0) + 1;
+        save();
+      });
+
+      syncUI();
+    }
+
+    function syncUI() {
+      // cart lines
+      const lines = document.getElementById("cart-lines");
+      const kept = Object.entries(cart).filter(([, q]) => q > 0);
+
+      lines.innerHTML = kept.map(([id, q]) => {
+        const it = ALL.find((x) => x.id === id);
+        return (
+          '<div class="cartline">' +
+          '<span class="nm">' + it.name + "</span>" +
+          '<span class="qty">' +
+          '<button data-act="dec" data-id="' + id + '">−</button>' +
+          q +
+          '<button data-act="inc" data-id="' + id + '">+</button>' +
+          "</span>" +
+          '<span class="line-total">₹' + it.price * q + "</span>" +
+          "</div>"
+        );
+      }).join("");
+
+      const c = count();
+      document.getElementById("cart").classList.toggle("visible", c > 0);
+      document.getElementById("cartbar").classList.toggle("visible", c > 0);
+      document.getElementById("bar-count").textContent = c + " item" + (c === 1 ? "" : "s") + " · ₹" + subtotal();
+
+      const fee = c > 0 ? r.delivery.fee : 0;
+      document.getElementById("totals").innerHTML =
+        '<div class="row"><span>food</span><span>₹' + subtotal() + "</span></div>" +
+        '<div class="row"><span>delivery — ' + r.area + "'s own people</span><span>₹" + fee + "</span></div>" +
+        '<div class="row grand"><span>total</span><span>₹' + (subtotal() + fee) + "</span></div>";
+    }
+
+    document.getElementById("cart-lines").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-act]");
+      if (!btn) return;
+      const id = btn.dataset.id;
+      if (btn.dataset.act === "inc") cart[id] = (cart[id] || 0) + 1;
+      else { cart[id] = (cart[id] || 0) - 1; if (cart[id] <= 0) delete cart[id]; }
+      save();
+    });
+
+    document.getElementById("cartbar").addEventListener("click", () => {
+      document.getElementById("cart").scrollIntoView({ behavior: "smooth" });
+    });
+
+    /* ---------- order text ---------- */
+    function orderText() {
+      const lines = Object.entries(cart).filter(([, q]) => q > 0).map(([id, q]) => {
+        const it = ALL.find((x) => x.id === id);
+        return q + " × " + it.name + " — ₹" + it.price * q;
+      });
+
+      return [
+        "NEW ORDER — via keralam.eat",
+        "",
+        ...lines,
+        "",
+        "Delivery: ₹" + r.delivery.fee,
+        "TOTAL: ₹" + (subtotal() + r.delivery.fee),
+        "",
+        "Name: " + document.getElementById("cname").value.trim(),
+        "Phone: " + document.getElementById("cphone").value.trim(),
+        "Address: " + document.getElementById("caddress").value.trim().replace(/\n/g, ", ")
+      ].join("\n");
+    }
+
+    function validate() {
+      const done = document.getElementById("done");
+      done.style.display = "none";
+      if (!document.getElementById("cname").value.trim()) { done.textContent = "A name, so the kitchen knows who to ask for at the gate."; done.style.color = "var(--red)"; done.style.display = "block"; return false; }
+      if (!/^[0-9 +()-]{7,}$/.test(document.getElementById("cphone").value.trim())) { done.textContent = "A phone number, so the delivery can find you."; done.style.color = "var(--red)"; done.style.display = "block"; return false; }
+      if (!document.getElementById("caddress").value.trim()) { done.textContent = "An address — the food has to land somewhere."; done.style.color = "var(--red)"; done.style.display = "block"; return false; }
+      return true;
+    }
+
+    document.getElementById("send").addEventListener("click", () => {
+      if (!r.open) return;
+      if (!validate()) return;
+
+      const text = orderText();
+      const url = "https://wa.me/" + r.whatsapp + "?text=" + encodeURIComponent(text);
+      window.open(url, "_blank");
+
+      const done = document.getElementById("done");
+      done.style.color = "var(--leaf)";
+      done.textContent =
+        "WhatsApp should have opened with your order, ready to send from your own number. " +
+        "From here it is between you and the kitchen — this page is out of the conversation, on purpose. " +
+        "If WhatsApp did not open, use “copy the order text” instead.";
+      done.style.display = "block";
+    });
+
+    document.getElementById("copy").addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!validate()) return;
+      const text = orderText();
+      navigator.clipboard.writeText(text).then(() => {
+        const done = document.getElementById("done");
+        done.style.color = "var(--leaf)";
+        done.textContent = "Copied. Send it to the kitchen on " + r.whatsapp + " whenever you are ready.";
+        done.style.display = "block";
+      });
+    });
+  </script>
+</body>
+</html>
