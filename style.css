@@ -124,6 +124,20 @@ a { color: var(--leaf); text-decoration: underline; text-underline-offset: .15em
   outline: none;
   cursor: pointer;
 }
+.locbar .area-input {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--ink);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .85rem;
+  color: var(--ink);
+  padding: .3rem .1rem;
+  outline: none;
+  width: 13.5rem;
+  max-width: 60vw;
+}
+.locbar .area-input:focus { border-bottom-color: var(--leaf); }
+.locbar .area-input::placeholder { color: #b3ac99; }
 .locbar .clearloc {
   background: none;
   border: none;

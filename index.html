@@ -44,6 +44,9 @@
         <select id="pick-area" aria-label="pick your area">
           <option value="">pick your area…</option>
         </select>
+        <span class="or" style="color:var(--muted)">or</span>
+        <input class="area-input" id="area-input" placeholder="type any area, e.g. Vyttila, Kochi" aria-label="type any area">
+        <button class="near" id="area-go">go</button>
         <button class="clearloc" id="clear-loc" style="display:none" title="forget my location">×</button>
       </div>
       <div class="locnote mono" id="loc-note">No location set — showing all kitchens.</div>
@@ -156,6 +159,40 @@
       pick.value = "";
       setAnchor(null);
       document.getElementById("loc-note").textContent = "Location forgotten. Showing all kitchens.";
+    });
+
+    /* ---------- free-text area search (Nominatim) ---------- */
+    // Any area name works — the query is geocoded against OpenStreetMap,
+    // bounded to Keralam's bounding box so results stay local.
+    // Privacy: the typed text goes to nominatim.openstreetmap.org and nowhere else.
+
+    async function findArea() {
+      const q = document.getElementById("area-input").value.trim();
+      const note = document.getElementById("loc-note");
+      if (!q) return;
+      note.textContent = "Looking up \u201c" + q + "\u201d on OpenStreetMap\u2026";
+      try {
+        const url =
+          "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(q) +
+          "&format=json&limit=1&viewbox=74.8,12.9,78.2,8.1&bounded=1";
+        const res = await fetch(url);
+        const rows = await res.json();
+        if (!rows.length) {
+          note.textContent = "Couldn't find that spot within Keralam \u2014 try a town or junction name, or use \u201ckitchens near me\u201d.";
+          return;
+        }
+        const r = rows[0];
+        const label = (r.display_name || q).split(",").slice(0, 2).join(",").trim();
+        setAnchor({ lat: +r.lat, lng: +r.lon, label: label });
+        document.getElementById("area-input").value = "";
+      } catch (err) {
+        note.textContent = "The geocoder couldn't be reached \u2014 pick a city from the list, or use \u201ckitchens near me\u201d.";
+      }
+    }
+
+    document.getElementById("area-go").addEventListener("click", findArea);
+    document.getElementById("area-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); findArea(); }
     });
 
     /* ---------- rendering ---------- */

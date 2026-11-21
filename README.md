@@ -50,7 +50,11 @@ The directory is organised around *where you are*, not around categories:
   own, self-declared radius, sorted by distance) and **"Outside their
   own delivery radius"** — still browsable, but not pretending.
 - **Manual fallback**: pick your area from the list (anchored to that
-  city's kitchens). Your choice is remembered on your device only.
+  city's kitchens), or **type any area name** — "Kakkanad",
+  "Vyttila, Kochi" — and it's geocoded via OpenStreetMap's Nominatim
+  (bounded to Keralam's map box). Your choice is remembered on your
+  device only. Privacy note: a typed area goes to nominatim.openstreetmap.org
+  and nowhere else; nothing is stored by this site.
 - Each kitchen's page tells you your distance and whether you're
   inside *their* radius — because with self-delivery, the radius is the
   kitchen's own promise, not a platform's algorithm.
