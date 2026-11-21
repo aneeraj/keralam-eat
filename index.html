@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>keralam.eat — order direct from the kitchens of Keralam</title>
-  <meta name="description" content="Order food direct from kitchens near you in Keralam. No commission, no middleman — every kitchen delivers with its own people and keeps all the money.">
+  <meta name="description" content="Order food direct from kitchens near you in Keralam. Zero commission — every kitchen delivers with its own people.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M4 28 C 6 15, 14 6, 28 4 C 26 17, 18 26, 6 27' fill='none' stroke='%233d5a3c' stroke-width='2' stroke-linecap='round'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,59 +16,39 @@
 
     <div class="masthead">
       <span class="domain">keralam.eat</span>
-      <span><a href="https://github.com/aneeraj/keralam-eat">the code →</a> open source</span>
+      <span><a href="https://github.com/aneeraj/keralam-eat">code ↗</a> · zero commission</span>
     </div>
 
     <section class="hero">
       <div class="mal-big" aria-label="Keralam">കേരളം</div>
       <h1>Order direct from the kitchens of Keralam.</h1>
-      <p>
-        No commission, no rider army, no company in the middle.
-        See who's cooking around <strong>you</strong>, place your order here —
-        and the kitchen that cooks it <strong>delivers it with its own people
-        and keeps every rupee</strong>. This site takes nothing. It only introduces.
-      </p>
-      <div class="how">
-        <div class="label">How it works</div>
-        <ol>
-          <li>Set where you are — we ask your browser once, or you pick your area.</li>
-          <li>Build your order on the kitchen's page.</li>
-          <li>Your order opens as a WhatsApp message, from you to the kitchen — nothing is stored anywhere in between.</li>
-          <li>They cook, their own people deliver, and they keep all the money.</li>
-        </ol>
-      </div>
-
-      <div class="locbar">
-        <button class="near" id="near-me">● kitchens near me</button>
-        <span class="or" style="color:var(--muted)">or</span>
-        <select id="pick-area" aria-label="pick your area">
-          <option value="">pick your area…</option>
-        </select>
-        <span class="or" style="color:var(--muted)">or</span>
-        <input class="area-input" id="area-input" placeholder="type any area, e.g. Vyttila, Kochi" aria-label="type any area">
-        <button class="near" id="area-go">go</button>
-        <button class="clearloc" id="clear-loc" style="display:none" title="forget my location">×</button>
-      </div>
-      <div class="locnote mono" id="loc-note">No location set — showing all kitchens.</div>
+      <p class="sub">No middleman — every kitchen delivers with its own people and keeps every rupee.</p>
     </section>
 
-    <div class="section-head">
-      <h2 id="list-title">Kitchens on keralam.eat</h2>
-      <span class="note mono" id="count"></span>
+    <div class="locbar">
+      <button class="near" id="near-me">● near me</button>
+      <select id="pick-area" aria-label="pick your area">
+        <option value="">pick…</option>
+      </select>
+      <input class="area-input" id="area-input" placeholder="type any area…" aria-label="type any area">
+      <button class="area-go" id="area-go">go</button>
+      <button class="clearloc" id="clear-loc" style="display:none" title="forget my location">×</button>
     </div>
+    <div class="locnote" id="loc-note">No location set — showing all kitchens. <span style="opacity:.7">location stays on your device · typed areas are looked up on OpenStreetMap</span></div>
 
-    <div id="near-group">
-      <div class="group-head">Delivers to you</div>
-      <div id="near-list"></div>
+    <div id="near-section">
+      <div class="section-head" id="list-title"><span>Kitchens</span><span class="note mono" id="count"></span></div>
+      <div class="cards" id="near-cards"></div>
+      <div class="empty-state" id="empty-state" style="display:none"></div>
     </div>
-    <div id="far-group">
-      <div class="group-head far">Outside their own delivery radius</div>
-      <div id="far-list"></div>
+    <div id="far-section">
+      <div class="group-head far">Too far for their own delivery</div>
+      <div class="cards far-group" id="far-cards"></div>
     </div>
 
     <footer>
       <span>keralam.eat — order direct</span>
-      <span>zero commission · self-delivered · community run</span>
+      <span>self-delivered · community run · <a href="https://github.com/aneeraj/keralam-eat">open source</a></span>
     </footer>
 
   </div>
@@ -78,9 +58,20 @@
     const R = window.RESTAURANTS;
     const LOC_KEY = "keralam.eat:loc";
 
-    document.getElementById("count").textContent = R.length + " kitchens · demo data";
+    document.getElementById("count").textContent = R.length + " kitchens";
 
-    /* ---------- geo ---------- */
+    const MAL = {
+      "Kozhikode": "കോഴിക്കോട്",
+      "Kochi": "കൊച്ചി",
+      "Thrissur": "തൃശ്ശൂർ",
+      "Kottayam": "കോട്ടയം",
+      "Alappuzha": "ആലപ്പുഴ"
+    };
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
 
     function kmBetween(a, b) {
       const rad = (x) => (x * Math.PI) / 180;
@@ -96,7 +87,9 @@
       return (d < 10 ? d.toFixed(1) : Math.round(d)) + " km";
     }
 
-    let anchor = null; // { lat, lng, label }
+    /* ---------- anchor state ---------- */
+
+    let anchor = null;
     try { anchor = JSON.parse(localStorage.getItem(LOC_KEY) || "null"); } catch (e) { anchor = null; }
 
     function setAnchor(a) {
@@ -106,47 +99,38 @@
       render();
     }
 
+    /* ---------- near me ---------- */
+
     document.getElementById("near-me").addEventListener("click", () => {
       const note = document.getElementById("loc-note");
       note.textContent = "Asking your browser where you are…";
       if (!navigator.geolocation) {
-        note.textContent = "This browser can't share a location — pick your area instead.";
+        note.textContent = "This browser can't share location — pick or type your area.";
         return;
       }
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setAnchor({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-            label: "your location" + (pos.coords.accuracy ? "" : "")
-          });
+          setAnchor({ lat: pos.coords.latitude, lng: pos.coords.longitude, label: "you" });
         },
         (err) => {
-          const reasons = {
-            1: "You (or your browser) said no — that's fine. Pick your area instead.",
-            2: "Couldn't get a fix right now. Pick your area instead.",
-            3: "Took too long. Pick your area instead."
-          };
           note.textContent =
-            "Location needs the site to be live on https — right now it's a local file, so your browser won't share it. " +
-            (reasons[err.code] || "Pick your area instead.");
+            "Location needs the site live on https (or your permission) — pick or type your area instead.";
         },
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
       );
     });
 
-    // area picker: anchor = centroid of that city's kitchens
+    /* ---------- area picker ---------- */
+
     const cities = [...new Set(R.map((r) => r.city))];
     const pick = document.getElementById("pick-area");
     for (const c of cities) {
       const inCity = R.filter((r) => r.city === c);
-      const lat = inCity.reduce((s, r) => s + r.lat, 0) / inCity.length;
-      const lng = inCity.reduce((s, r) => s + r.lng, 0) / inCity.length;
       const opt = document.createElement("option");
       opt.value = c;
       opt.textContent = c + " (" + inCity.length + ")";
-      opt.dataset.lat = lat;
-      opt.dataset.lng = lng;
+      opt.dataset.lat = inCity.reduce((s, r) => s + r.lat, 0) / inCity.length;
+      opt.dataset.lng = inCity.reduce((s, r) => s + r.lng, 0) / inCity.length;
       pick.appendChild(opt);
     }
     pick.addEventListener("change", () => {
@@ -158,19 +142,16 @@
     document.getElementById("clear-loc").addEventListener("click", () => {
       pick.value = "";
       setAnchor(null);
-      document.getElementById("loc-note").textContent = "Location forgotten. Showing all kitchens.";
+      document.getElementById("loc-note").textContent = "Location forgotten — showing all kitchens.";
     });
 
-    /* ---------- free-text area search (Nominatim) ---------- */
-    // Any area name works — the query is geocoded against OpenStreetMap,
-    // bounded to Keralam's bounding box so results stay local.
-    // Privacy: the typed text goes to nominatim.openstreetmap.org and nowhere else.
+    /* ---------- typed area (Nominatim) ---------- */
 
     async function findArea() {
       const q = document.getElementById("area-input").value.trim();
       const note = document.getElementById("loc-note");
       if (!q) return;
-      note.textContent = "Looking up \u201c" + q + "\u201d on OpenStreetMap\u2026";
+      note.textContent = "Looking up \u201c" + q + "\u201d\u2026";
       try {
         const url =
           "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(q) +
@@ -178,15 +159,15 @@
         const res = await fetch(url);
         const rows = await res.json();
         if (!rows.length) {
-          note.textContent = "Couldn't find that spot within Keralam \u2014 try a town or junction name, or use \u201ckitchens near me\u201d.";
+          note.textContent = "Not found in Keralam \u2014 try a town or junction name.";
           return;
         }
         const r = rows[0];
-        const label = (r.display_name || q).split(",").slice(0, 2).join(",").trim();
+        const label = (r.display_name || q).split(",")[0].trim();
         setAnchor({ lat: +r.lat, lng: +r.lon, label: label });
         document.getElementById("area-input").value = "";
       } catch (err) {
-        note.textContent = "The geocoder couldn't be reached \u2014 pick a city from the list, or use \u201ckitchens near me\u201d.";
+        note.textContent = "Geocoder unreachable \u2014 try again in a moment.";
       }
     }
 
@@ -195,56 +176,44 @@
       if (e.key === "Enter") { e.preventDefault(); findArea(); }
     });
 
-    /* ---------- rendering ---------- */
+    /* ---------- render ---------- */
 
-    function esc(s) {
-      return String(s).replace(/[&<>"']/g, (c) =>
-        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-    }
-
-    const MAL = {
-      "Kozhikode": "കോഴിക്കോട്",
-      "Kochi": "കൊച്ചി",
-      "Thrissur": "തൃശ്ശൂർ",
-      "Kottayam": "കോട്ടയം",
-      "Alappuzha": "ആലപ്പുഴ"
-    };
-
-    function rowHTML(r, d, inRadius) {
-      const openness = r.open
-        ? '<span class="openness open"><span class="dot open"></span>open now</span>'
-        : '<span class="openness closed"><span class="dot closed"></span>closed · ' + r.hours + "</span>";
+    function cardHTML(r, d, inRadius) {
+      const pill = r.open
+        ? '<span class="pill open">open</span>'
+        : '<span class="pill closed">closed</span>';
       const dist = d == null ? "" :
-        '<span class="dist' + (inRadius ? " in" : "") + '">' + fmtKm(d) + (inRadius ? " · delivers to you" : "") + "</span>";
-      const city = r.city + (MAL[r.city] ? ' <span class="mal">' + MAL[r.city] + "</span>" : "");
+        '<div class="dist' + (inRadius ? " in" : "") + '">' +
+        (inRadius ? fmtKm(d) + " \u00b7 delivers to you" : fmtKm(d)) + "</div>";
       return (
-        '<div class="rest">' +
-        '<a class="plain" href="restaurant.html?id=' + r.slug + '">' +
-        '<div class="name">' + r.name + "</div>" +
-        '<div class="meta">' + r.area + ", " + city + " · " + r.cuisine + " · " + openness + dist + "</div>" +
-        '<div class="tagline">' + r.tagline + "</div>" +
-        "</a>" +
-        '<div class="view"><a href="restaurant.html?id=' + r.slug + '">view the menu →</a> <span class="mono" style="color:var(--muted)">· delivers itself, within ' + r.delivery.radiusKm + " km</span></div>" +
-        "</div>"
+        '<a class="card" href="restaurant.html?id=' + r.slug + '">' +
+        '<div class="top"><span class="name">' + r.name + "</span>" + pill + "</div>" +
+        '<div class="meta">' + r.area + ", " + r.city +
+        (MAL[r.city] ? ' <span class="mal">' + MAL[r.city] + "</span>" : "") + "</div>" +
+        '<div class="chips">' + r.cuisine + " \u00b7 \u20b9" + r.delivery.fee +
+        " \u00b7 \u2264" + r.delivery.radiusKm + " km \u00b7 " + r.delivery.eta + "</div>" +
+        dist +
+        "</a>"
       );
     }
 
     function render() {
-      const nearList = document.getElementById("near-list");
-      const farList = document.getElementById("far-list");
-      const nearGroup = document.getElementById("near-group");
-      const farGroup = document.getElementById("far-group");
+      const nearCards = document.getElementById("near-cards");
+      const farCards = document.getElementById("far-cards");
+      const nearSection = document.getElementById("near-section");
+      const farSection = document.getElementById("far-section");
       const note = document.getElementById("loc-note");
       const title = document.getElementById("list-title");
+      const empty = document.getElementById("empty-state");
       const clearBtn = document.getElementById("clear-loc");
 
       if (!anchor) {
-        nearGroup.style.display = "block";
-        nearGroup.querySelector(".group-head").style.display = "none";
-        farGroup.style.display = "none";
-        nearList.innerHTML = R.map((r) => rowHTML(r, null, false)).join("");
-        title.textContent = "Kitchens on keralam.eat";
-        note.textContent = "No location set — showing all kitchens.";
+        nearSection.style.display = "";
+        farSection.style.display = "none";
+        nearCards.innerHTML = R.map((r) => cardHTML(r, null, false)).join("");
+        title.firstChild.textContent = "Kitchens";
+        note.innerHTML = "No location set \u2014 showing all. <span style='opacity:.7'>location stays on your device \u00b7 typed areas are looked up on OpenStreetMap</span>";
+        empty.style.display = "none";
         clearBtn.style.display = "none";
         return;
       }
@@ -253,29 +222,28 @@
       const near = withD.filter((x) => x.d <= x.r.delivery.radiusKm).sort((a, b) => a.d - b.d);
       const far = withD.filter((x) => x.d > x.r.delivery.radiusKm).sort((a, b) => a.d - b.d);
 
-      nearGroup.style.display = "block";
-      farGroup.style.display = far.length ? "block" : "none";
+      nearSection.style.display = "";
+      farSection.style.display = far.length ? "" : "none";
 
       if (near.length) {
-        nearGroup.querySelector(".group-head").style.display = "";
-        nearList.innerHTML = near.map((x) => rowHTML(x.r, x.d, true)).join("");
+        title.firstChild.textContent = "Delivers to you";
+        nearCards.innerHTML = near.map((x) => cardHTML(x.r, x.d, true)).join("");
+        empty.style.display = "none";
       } else {
-        nearGroup.querySelector(".group-head").style.display = "none";
+        title.firstChild.textContent = "Kitchens";
+        nearCards.innerHTML = "";
         const closest = far[0];
-        nearList.innerHTML =
-          '<div class="rest" style="border:none">' +
-          "No kitchen delivers to <strong>" + esc(anchor.label) + "</strong> yet. " +
+        empty.style.display = "block";
+        empty.innerHTML =
+          "Nothing delivers to <strong>" + esc(anchor.label) + "</strong> yet" +
           (closest
-            ? "The nearest one is <strong>" + closest.r.name + "</strong> (" + closest.r.area + ", " + closest.r.city +
-              "), about " + fmtKm(closest.d) + " away."
-            : "") +
-          ' Kitchens appear here the moment one joins \u2014 if you cook here yourself, <a href="https://github.com/aneeraj/keralam-eat">add your kitchen</a>.' +
-          "</div>";
+            ? " \u2014 nearest: <strong>" + closest.r.name + "</strong> (" + fmtKm(closest.d) + ")."
+            : ".") +
+          ' Cook here? <a href="https://github.com/aneeraj/keralam-eat">Add your kitchen</a>.';
       }
-      farList.innerHTML = far.map((x) => rowHTML(x.r, x.d, false)).join("");
 
-      title.textContent = "Kitchens around " + anchor.label;
-      note.textContent = "Showing kitchens by distance from " + anchor.label + ". A kitchen only appears on top if its own people can reach you.";
+      farCards.innerHTML = far.map((x) => cardHTML(x.r, x.d, false)).join("");
+      note.textContent = "Showing kitchens around " + anchor.label + ".";
       clearBtn.style.display = "inline-block";
     }
 

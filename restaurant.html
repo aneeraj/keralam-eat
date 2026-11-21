@@ -107,13 +107,9 @@
       const inside = d <= r.delivery.radiusKm;
       const fmt = (d < 10 ? d.toFixed(1) : Math.round(d)) + " km";
       return (
-        '<div class="delivery" style="margin-top:.4rem">' +
-        "you: " + fmt + " away · " +
-        (inside
-          ? '<span style="color:var(--leaf)">inside their radius — they can reach you</span>'
-          : '<span style="color:var(--red)">outside their radius</span>') +
-        ' · <a href="index.html">change location</a>' +
-        "</div>"
+        '<span class="chip ' + (inside ? "good" : "bad") + '">you: ' + fmt +
+        (inside ? " \u00b7 inside their radius" : " \u00b7 outside") + "</span>" +
+        '<a class="chip" href="index.html">change \u2197</a>'
       );
     }
 
@@ -130,10 +126,14 @@
       document.getElementById("r-head").innerHTML =
         "<h1>" + r.name + "</h1>" +
         '<div class="meta">' + r.area + ", " + r.city + (malCity ? ' <span class="mal">' + malCity + "</span>" : "") + " · " + r.cuisine + " · " + openness + "</div>" +
-        '<div class="delivery">delivers itself · within ' + r.delivery.radiusKm + " km · ₹" +
-        r.delivery.fee + " · " + r.delivery.eta + " · its own staff</div>" +
-        youLine() +
-        (r.open ? "" : '<div class="closed-banner">The kitchen is closed right now — browse, and come back at ' + r.hours.split("–")[0].trim() + ".</div>");
+        '<div class="chips-row">' +
+          '<span class="chip">own delivery</span>' +
+          '<span class="chip">\u2264' + r.delivery.radiusKm + " km</span>" +
+          '<span class="chip">\u20b9' + r.delivery.fee + "</span>" +
+          '<span class="chip">' + r.delivery.eta + "</span>" +
+          youLine() +
+        "</div>" +
+        (r.open ? "" : '<div class="closed-line">Closed now \u2014 back at ' + r.hours.split("–")[0].trim() + ".</div>");
 
       document.getElementById("foot-name").textContent = r.name + " · keralam.eat";
 
@@ -195,9 +195,9 @@
 
       const fee = c > 0 ? r.delivery.fee : 0;
       document.getElementById("totals").innerHTML =
-        '<div class="row"><span>food</span><span>₹' + subtotal() + "</span></div>" +
-        '<div class="row"><span>delivery — ' + r.area + "'s own people</span><span>₹" + fee + "</span></div>" +
-        '<div class="row grand"><span>total</span><span>₹' + (subtotal() + fee) + "</span></div>";
+        '<div class="row"><span>food</span><span>\u20b9' + subtotal() + "</span></div>" +
+        '<div class="row"><span>delivery</span><span>\u20b9' + fee + "</span></div>" +
+        '<div class="row grand"><span>total</span><span>\u20b9' + (subtotal() + fee) + "</span></div>";
     }
 
     document.getElementById("cart-lines").addEventListener("click", (e) => {
@@ -237,9 +237,9 @@
     function validate() {
       const done = document.getElementById("done");
       done.style.display = "none";
-      if (!document.getElementById("cname").value.trim()) { done.textContent = "A name, so the kitchen knows who to ask for at the gate."; done.style.color = "var(--red)"; done.style.display = "block"; return false; }
-      if (!/^[0-9 +()-]{7,}$/.test(document.getElementById("cphone").value.trim())) { done.textContent = "A phone number, so the delivery can find you."; done.style.color = "var(--red)"; done.style.display = "block"; return false; }
-      if (!document.getElementById("caddress").value.trim()) { done.textContent = "An address — the food has to land somewhere."; done.style.color = "var(--red)"; done.style.display = "block"; return false; }
+      if (!document.getElementById("cname").value.trim()) { done.textContent = "Add your name."; done.style.color = "var(--red)"; done.style.display = "block"; return false; }
+      if (!/^[0-9 +()-]{7,}$/.test(document.getElementById("cphone").value.trim())) { done.textContent = "Add a phone number."; done.style.color = "var(--red)"; done.style.display = "block"; return false; }
+      if (!document.getElementById("caddress").value.trim()) { done.textContent = "Add the delivery address."; done.style.color = "var(--red)"; done.style.display = "block"; return false; }
       return true;
     }
 
@@ -254,9 +254,8 @@
       const done = document.getElementById("done");
       done.style.color = "var(--leaf)";
       done.textContent =
-        "WhatsApp should have opened with your order, ready to send from your own number. " +
-        "From here it is between you and the kitchen — this page is out of the conversation, on purpose. " +
-        "If WhatsApp did not open, use “copy the order text” instead.";
+        "WhatsApp opened with your order \u2713 From here it's just you and the kitchen. " +
+        "Didn't open? Copy the order text instead.";
       done.style.display = "block";
     });
 
@@ -267,7 +266,7 @@
       navigator.clipboard.writeText(text).then(() => {
         const done = document.getElementById("done");
         done.style.color = "var(--leaf)";
-        done.textContent = "Copied. Send it to the kitchen on " + r.whatsapp + " whenever you are ready.";
+        done.textContent = "Copied \u2014 send it to the kitchen on " + r.whatsapp + ".";
         done.style.display = "block";
       });
     });
