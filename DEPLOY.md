@@ -7,6 +7,10 @@ service: `keralam-eat` (static site, free).
 
 Every `git push` to `main` redeploys automatically. Nothing else to do.
 
+Render's CDN edge-caches pages briefly (default: 5 minutes) — if a fresh
+deploy doesn't show up on the site immediately, give it a minute, or
+hard-refresh. `render.yaml` caps the edge cache at 60 seconds.
+
 ```sh
 # see deploys
 render deploys list keralam-eat
