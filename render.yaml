@@ -5,7 +5,7 @@ services:
     name: keralam-eat
     runtime: static
     buildCommand: echo "static — nothing to build"
-    publishPath: .
+    staticPublishPath: .
     headers:
       - path: /*
         name: X-Content-Type-Options
