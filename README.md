@@ -64,6 +64,18 @@ Everything lives in `data.js`. A kitchen adds its own entry —
 name, area, WhatsApp number, delivery fee and radius, and the menu —
 and opens a pull request. That's the whole onboarding.
 
+To find candidate kitchens in an area, there's a discovery script:
+
+```sh
+node scripts/discover.mjs "Vyttila, Kochi"                 # named places near an area
+node scripts/discover.mjs --overpass 9.9678 76.3194 1500   # everything OSM has mapped
+```
+
+It prints `data.js`-shaped stubs from OpenStreetMap (free, no API key).
+They are candidates, not members — the kitchen still has to confirm its
+WhatsApp number, menu and delivery terms before its entry is real.
+Data © OpenStreetMap contributors (ODbL).
+
 For kitchens that don't use git: the plan is a submission form that
 generates the entry for them. It doesn't exist yet, and that's the
 next thing to build.
