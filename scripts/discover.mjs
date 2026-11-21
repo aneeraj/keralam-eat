@@ -47,7 +47,7 @@ async function nominatim(place) {
   const res = await fetch(
     "https://nominatim.openstreetmap.org/search?q=" +
       encodeURIComponent("restaurants near " + place) +
-      "&format=json&limit=30&extratags=1",
+      "&format=json&limit=50&extratags=1",
     { headers: { "User-Agent": UA } }
   );
   const rows = await res.json();
